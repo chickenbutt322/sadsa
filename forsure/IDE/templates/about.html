@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - CodeCraft Studio</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, var(--bs-primary), var(--bs-info));
+            padding: 4rem 0;
+            color: white;
+        }
+        .feature-card {
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        .language-badge {
+            margin: 0.2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="CodeCraft Studio" height="40" class="me-2">
+                CodeCraft Studio
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="btn btn-outline-light me-2" href="{{ url_for('login') }}">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Sign In
+                </a>
+                <a class="btn btn-primary" href="{{ url_for('register') }}">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Sign Up
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-4">
+                About CodeCraft Studio
+            </h1>
+            <p class="lead mb-5">
+                Write, execute, and test code in multiple programming languages. 
+                Build projects with a comprehensive package ecosystem and persistent file storage.
+            </p>
+            <a href="{{ url_for('register') }}" class="btn btn-light btn-lg">
+                <i class="fas fa-rocket me-2"></i>
+                Get Started - It's Free!
+            </a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Powerful Features</h2>
+            <div class="row g-4">
+                <!-- Multi-Language Support -->
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-code fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">Multi-Language Support</h5>
+                            <p class="card-text">
+                                Execute code in Python, JavaScript, C, Java, Go, Rust, and more with full runtime support.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rich Package Ecosystem -->
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-cubes fa-3x text-success mb-3"></i>
+                            <h5 class="card-title">Rich Package Ecosystem</h5>
+                            <p class="card-text">
+                                Access 70+ Python libraries including NumPy, Pandas, Flask, Django, OpenAI, and more.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Management -->
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-folder fa-3x text-info mb-3"></i>
+                            <h5 class="card-title">File Management</h5>
+                            <p class="card-text">
+                                Full-featured file browser with import/export, project organization, and persistent storage.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Persistence -->
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-save fa-3x text-warning mb-3"></i>
+                            <h5 class="card-title">Project Persistence</h5>
+                            <p class="card-text">
+                                Your projects and files are automatically saved and synced across sessions.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monaco Editor -->
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-edit fa-3x text-danger mb-3"></i>
+                            <h5 class="card-title">Monaco Code Editor</h5>
+                            <p class="card-text">
+                                Professional code editor with syntax highlighting, IntelliSense, and autocomplete.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real-time Execution -->
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-bolt fa-3x text-secondary mb-3"></i>
+                            <h5 class="card-title">Real-time Execution</h5>
+                            <p class="card-text">
+                                Execute code instantly with detailed output, error handling, and execution time metrics.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Supported Languages -->
+    <section class="py-5 bg-dark">
+        <div class="container">
+            <h2 class="text-center mb-5">Supported Languages</h2>
+            <div class="text-center">
+                <span class="badge bg-primary language-badge">Python</span>
+                <span class="badge bg-success language-badge">JavaScript</span>
+                <span class="badge bg-info language-badge">C</span>
+                <span class="badge bg-warning language-badge">Java</span>
+                <span class="badge bg-secondary language-badge">Go</span>
+                <span class="badge bg-danger language-badge">Rust</span>
+                <span class="badge bg-light text-dark language-badge">Encoding/Decoding</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5">
+        <div class="container text-center">
+            <h2 class="mb-4">Ready to Start Coding?</h2>
+            <p class="lead mb-4">
+                Join thousands of developers who use our platform to build amazing projects.
+            </p>
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-user-plus me-2"></i>
+                Create Your Account
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark py-4">
+        <div class="container text-center">
+            <p class="mb-0 text-muted">Built with passion for developers, by developers.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
