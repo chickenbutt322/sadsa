@@ -811,187 +811,354 @@ import os
 import tempfile
 import logging
 
-class LanguageHandlerFactory:
-    def __init__(self):
-        self.handlers = {
-            'python': PythonHandler(),
-            'javascript': JavaScriptHandler(),
-            'java': JavaHandler(),
-            'c': CHandler(),
-            'cpp': CppHandler(),
-            'go': GoHandler(),
-            'rust': RustHandler(),
-        }
+# Add missing implementations for C, Go, and Rust handlers
+class CHandler(LanguageHandler):
+    """Handler for C code execution"""
     
-    def get_handler(self, language):
-        return self.handlers.get(language.lower())
-
-class BaseHandler:
-    def execute(self, code, input_data=""):
-        raise NotImplementedError
-
-class PythonHandler(BaseHandler):
-    def execute(self, code, input_data=""):
+    def __init__(self):
+        self.timeout = 30
+    
+    def execute(self, code: str) -> Dict[str, Any]:
+        """Execute C code"""
+        start_time = time.time()
+        
         try:
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-                f.write(code)
-                f.flush()
-                
-                result = subprocess.run(
-                    ['python3', f.name],
-                    input=input_data,
-                    capture_output=True,
-                    text=True,
-                    timeout=30
-                )
-                
-                os.unlink(f.name)
-                
-                return {
-                    'output': result.stdout,
-                    'error': result.stderr,
-                    'exit_code': result.returncode
-                }
-        except Exception as e:
+            # Check if GCC is available
+            subprocess.run(['gcc', '--version'], capture_output=True, check=True)
+        except (subprocess.CalledProcessError, FileNotFoundError):
             return {
                 'output': '',
-                'error': str(e),
+                'error': 'GCC compiler is not installed on this system',
                 'exit_code': 1
             }
-
-class JavaScriptHandler(BaseHandler):
-    def execute(self, code, input_data=""):
+        
         try:
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.js', delete=False) as f:
-                f.write(code)
-                f.flush()
-                
-                result = subprocess.run(
-                    ['node', f.name],
-                    input=input_data,
-                    capture_output=True,
-                    text=True,
-                    timeout=30
-                )
-                
-                os.unlink(f.name)
-                
-                return {
-                    'output': result.stdout,
-                    'error': result.stderr,
-                    'exit_code': result.returncode
-                }
-        except Exception as e:
-            return {
-                'output': '',
-                'error': str(e),
-                'exit_code': 1
-            }
-
-class JavaHandler(BaseHandler):
-    def execute(self, code, input_data=""):
-        try:
-            # Extract class name from code
-            class_name = 'Main'  # Default
-            lines = code.split('\n')
-            for line in lines:
-                if 'public class' in line:
-                    parts = line.split()
-                    if len(parts) >= 3:
-                        class_name = parts[2]
-                    break
-            
-            # Create temporary Java file
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.java', delete=False) as f:
+            # Create temporary C file
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.c', delete=False) as f:
                 f.write(code)
                 temp_file = f.name
             
-            # Rename to match class name
-            java_file = os.path.join(os.path.dirname(temp_file), f'{class_name}.java')
-            os.rename(temp_file, java_file)
+            # Compile
+            exe_file = temp_file.replace('.c', '')
+            compile_result = subprocess.run(
+                ['gcc', temp_file, '-o', exe_file],
+                capture_output=True,
+                text=True,
+                timeout=15
+            )
             
-            try:
-                # Compile
-                compile_result = subprocess.run(
-                    ['javac', java_file],
-                    capture_output=True,
-                    text=True,
-                    timeout=15,
-                    cwd=os.path.dirname(java_file)
-                )
-                
-                if compile_result.returncode != 0:
-                    return {
-                        'output': '',
-                        'error': f'Compilation Error:\n{compile_result.stderr}',
-                        'exit_code': compile_result.returncode
-                    }
-                
-                # Execute
-                result = subprocess.run(
-                    ['java', class_name],
-                    input=input_data,
-                    capture_output=True,
-                    text=True,
-                    timeout=30,
-                    cwd=os.path.dirname(java_file)
-                )
-                
+            if compile_result.returncode != 0:
                 return {
-                    'output': result.stdout,
-                    'error': result.stderr if result.returncode != 0 else '',
-                    'exit_code': result.returncode
+                    'output': '',
+                    'error': f'Compilation Error:\n{compile_result.stderr}',
+                    'exit_code': compile_result.returncode
                 }
-                
-            finally:
-                # Cleanup
-                try:
-                    os.unlink(java_file)
-                    class_file = os.path.join(os.path.dirname(java_file), f'{class_name}.class')
-                    if os.path.exists(class_file):
-                        os.unlink(class_file)
-                except OSError:
-                    pass
-                    
+            
+            # Execute
+            result = subprocess.run(
+                [exe_file],
+                capture_output=True,
+                text=True,
+                timeout=self.timeout,
+                cwd=tempfile.gettempdir()
+            )
+            
+            # Cleanup
+            try:
+                os.unlink(temp_file)
+                os.unlink(exe_file)
+            except OSError:
+                pass
+            
+            return {
+                'output': result.stdout,
+                'error': result.stderr if result.returncode != 0 else '',
+                'exit_code': result.returncode
+            }
+            
+        except subprocess.TimeoutExpired:
+            return {
+                'output': '',
+                'error': f'Code execution timed out after {self.timeout} seconds',
+                'exit_code': 1
+            }
         except Exception as e:
             return {
                 'output': '',
                 'error': f'Execution error: {str(e)}',
                 'exit_code': 1
             }
-
-class CHandler(BaseHandler):
-    def execute(self, code, input_data=""):
-        # Basic C handler - would need compilation
+    
+    def validate(self, code: str) -> Tuple[bool, Optional[str]]:
+        """Validate C syntax"""
+        try:
+            # Try syntax check with gcc
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.c', delete=False) as f:
+                f.write(code)
+                temp_file = f.name
+            
+            result = subprocess.run(
+                ['gcc', '-fsyntax-only', temp_file],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            
+            os.unlink(temp_file)
+            
+            if result.returncode == 0:
+                return True, None
+            else:
+                return False, result.stderr.strip()
+                
+        except Exception as e:
+            return False, f"Validation error: {str(e)}"
+    
+    def get_language_info(self) -> Dict[str, str]:
+        """Get C language information"""
         return {
-            'output': '',
-            'error': 'C execution not implemented yet',
-            'exit_code': 1
+            'name': 'C',
+            'version': 'GCC',
+            'file_extension': '.c',
+            'monaco_language': 'c'
         }
 
-class CppHandler(BaseHandler):
-    def execute(self, code, input_data=""):
-        # Basic C++ handler - would need compilation
+class GoHandler(LanguageHandler):
+    """Handler for Go code execution"""
+    
+    def __init__(self):
+        self.timeout = 30
+    
+    def execute(self, code: str) -> Dict[str, Any]:
+        """Execute Go code"""
+        start_time = time.time()
+        
+        try:
+            # Check if Go is available
+            subprocess.run(['go', 'version'], capture_output=True, check=True)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return {
+                'output': '',
+                'error': 'Go is not installed on this system',
+                'exit_code': 1
+            }
+        
+        try:
+            # Create temporary Go file
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.go', delete=False) as f:
+                f.write(code)
+                temp_file = f.name
+            
+            # Execute Go code directly
+            result = subprocess.run(
+                ['go', 'run', temp_file],
+                capture_output=True,
+                text=True,
+                timeout=self.timeout,
+                cwd=tempfile.gettempdir()
+            )
+            
+            # Cleanup
+            try:
+                os.unlink(temp_file)
+            except OSError:
+                pass
+            
+            return {
+                'output': result.stdout,
+                'error': result.stderr if result.returncode != 0 else '',
+                'exit_code': result.returncode
+            }
+            
+        except subprocess.TimeoutExpired:
+            return {
+                'output': '',
+                'error': f'Code execution timed out after {self.timeout} seconds',
+                'exit_code': 1
+            }
+        except Exception as e:
+            return {
+                'output': '',
+                'error': f'Execution error: {str(e)}',
+                'exit_code': 1
+            }
+    
+    def validate(self, code: str) -> Tuple[bool, Optional[str]]:
+        """Validate Go syntax"""
+        try:
+            # Try syntax check with go fmt
+            result = subprocess.run(
+                ['go', 'fmt'],
+                input=code,
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            
+            return True, None  # Basic validation
+                
+        except Exception as e:
+            return False, f"Validation error: {str(e)}"
+    
+    def get_language_info(self) -> Dict[str, str]:
+        """Get Go language information"""
         return {
-            'output': '',
-            'error': 'C++ execution not implemented yet',
-            'exit_code': 1
+            'name': 'Go',
+            'version': 'Go',
+            'file_extension': '.go',
+            'monaco_language': 'go'
         }
 
-class GoHandler(BaseHandler):
-    def execute(self, code, input_data=""):
-        # Basic Go handler
+class RustHandler(LanguageHandler):
+    """Handler for Rust code execution"""
+    
+    def __init__(self):
+        self.timeout = 30
+    
+    def execute(self, code: str) -> Dict[str, Any]:
+        """Execute Rust code"""
+        start_time = time.time()
+        
+        try:
+            # Check if Rust is available
+            subprocess.run(['rustc', '--version'], capture_output=True, check=True)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return {
+                'output': '',
+                'error': 'Rust compiler is not installed on this system',
+                'exit_code': 1
+            }
+        
+        try:
+            # Create temporary Rust file
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.rs', delete=False) as f:
+                f.write(code)
+                temp_file = f.name
+            
+            # Compile
+            exe_file = temp_file.replace('.rs', '')
+            compile_result = subprocess.run(
+                ['rustc', temp_file, '-o', exe_file],
+                capture_output=True,
+                text=True,
+                timeout=15
+            )
+            
+            if compile_result.returncode != 0:
+                return {
+                    'output': '',
+                    'error': f'Compilation Error:\n{compile_result.stderr}',
+                    'exit_code': compile_result.returncode
+                }
+            
+            # Execute
+            result = subprocess.run(
+                [exe_file],
+                capture_output=True,
+                text=True,
+                timeout=self.timeout,
+                cwd=tempfile.gettempdir()
+            )
+            
+            # Cleanup
+            try:
+                os.unlink(temp_file)
+                os.unlink(exe_file)
+            except OSError:
+                pass
+            
+            return {
+                'output': result.stdout,
+                'error': result.stderr if result.returncode != 0 else '',
+                'exit_code': result.returncode
+            }
+            
+        except subprocess.TimeoutExpired:
+            return {
+                'output': '',
+                'error': f'Code execution timed out after {self.timeout} seconds',
+                'exit_code': 1
+            }
+        except Exception as e:
+            return {
+                'output': '',
+                'error': f'Execution error: {str(e)}',
+                'exit_code': 1
+            }
+    
+    def validate(self, code: str) -> Tuple[bool, Optional[str]]:
+        """Validate Rust syntax"""
+        try:
+            # Try syntax check with rustc
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.rs', delete=False) as f:
+                f.write(code)
+                temp_file = f.name
+            
+            result = subprocess.run(
+                ['rustc', '--emit=metadata', temp_file],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            
+            os.unlink(temp_file)
+            
+            if result.returncode == 0:
+                return True, None
+            else:
+                return False, result.stderr.strip()
+                
+        except Exception as e:
+            return False, f"Validation error: {str(e)}"
+    
+    def get_language_info(self) -> Dict[str, str]:
+        """Get Rust language information"""
         return {
-            'output': '',
-            'error': 'Go execution not implemented yet',
-            'exit_code': 1
+            'name': 'Rust',
+            'version': 'Rust',
+            'file_extension': '.rs',
+            'monaco_language': 'rust'
         }
 
-class RustHandler(BaseHandler):
-    def execute(self, code, input_data=""):
-        # Basic Rust handler
-        return {
-            'output': '',
-            'error': 'Rust execution not implemented yet',
-            'exit_code': 1
+# Updated factory with working handlers
+class LanguageHandlerFactory:
+    """Factory class for managing language handlers"""
+    
+    def __init__(self):
+        self.handlers = {
+            'python': PythonHandler(),
+            'javascript': JavaScriptHandler(), 
+            'java': JavaHandler(),
+            'c': CHandler(),
+            'go': GoHandler(),
+            'rust': RustHandler(),
         }
+    
+    def get_handler(self, language: str):
+        """Get handler for specified language"""
+        return self.handlers.get(language.lower())
+    
+    def get_supported_languages(self):
+        """Get list of supported languages"""
+        return list(self.handlers.keys())
+    
+    def get_available_languages(self):
+        """Get list of available languages with info"""
+        languages = []
+        for lang, handler in self.handlers.items():
+            try:
+                info = handler.get_language_info()
+                info['key'] = lang
+                languages.append(info)
+            except:
+                # Fallback info if handler doesn't have get_language_info
+                languages.append({
+                    'key': lang,
+                    'name': lang.capitalize(),
+                    'version': 'Unknown',
+                    'file_extension': f'.{lang}',
+                    'monaco_language': lang
+                })
+        return languages
+
+

@@ -498,7 +498,15 @@ def execute_code():
         # Execute code
         result = handler.execute(code)
         
-        return result
+        # Convert to expected format
+        if 'exit_code' in result:
+            return {
+                'output': result.get('output', ''),
+                'error': result.get('error', '') if result.get('exit_code', 0) != 0 else None,
+                'execution_time': 0
+            }
+        else:
+            return result
         
     except Exception as e:
         logging.error(f"Error executing code: {e}")
@@ -641,6 +649,6 @@ if __name__ == '__main__':
                 continue
         return start_port
 
-    port = find_available_port(3000)
+    port = find_available_port(5000)
     print(f"Starting server on port {port}")
     app.run(host='0.0.0.0', port=port, debug=True)

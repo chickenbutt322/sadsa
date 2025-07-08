@@ -1,7 +1,8 @@
-modules = ["python-3.11", "postgresql-16"]
+modules = ["python-3.11", "postgresql-16", "nodejs-20"]
 
 [nix]
 channel = "stable-24_05"
+packages = ["gcc", "openjdk", "go", "rustc"]
 
 [workflows]
 runButton = "Project"
@@ -22,8 +23,16 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd forsure/IDE && GOOGLE_OAUTH_CLIENT_ID=\"29533527207-eh0v13lufsota61u3227rj8anuecleru.apps.googleusercontent.com\" GOOGLE_OAUTH_CLIENT_SECRET=\"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\" python app.py"
-waitForPort = 3000
+waitForPort = 5000
 
 [[ports]]
 localPort = 3000
 externalPort = 80
+
+[[ports]]
+localPort = 3001
+externalPort = 3001
+
+[[ports]]
+localPort = 5000
+externalPort = 5000

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultra-Compact Python Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .calculator {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        #expression {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #result {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            min-height: 20px;
+        }
+        .error {
+            color: #dc3545;
+        }
+        .success {
+            color: #28a745;
+        }
+        .examples {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Ultra-Compact Python Calculator</h1>
+        <input type="text" id="expression" placeholder="Enter expression (e.g., 2 + 3 * 4)" autofocus>
+        <button onclick="calculate()">Calculate</button>
+        <div id="result">Enter an expression above</div>
+        
+        <div class="examples">
+            <strong>Examples:</strong><br>
+            • 2 + 3 * 4<br>
+            • (5 + 3) / 2<br>
+            • 2 ** 3 (or 2 ^ 3)<br>
+            • 10 % 3<br>
+            • 15 // 4
+        </div>
+    </div>
+
+    <script>
+        async function calculate() {
+            const expression = document.getElementById('expression').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!expression.trim()) {
+                resultDiv.textContent = 'Please enter an expression';
+                resultDiv.className = 'error';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ expression: expression })
+                });
+                
+                const data = await response.json();
+                resultDiv.textContent = data.result;
+                
+                if (data.result.startsWith('Error:')) {
+                    resultDiv.className = 'error';
+                } else {
+                    resultDiv.className = 'success';
+                }
+            } catch (error) {
+                resultDiv.textContent = 'Network error';
+                resultDiv.className = 'error';
+            }
+        }
+        
+        // Allow Enter key to calculate
+        document.getElementById('expression').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculate();
+            }
+        });
+    </script>
+</body>
+</html>

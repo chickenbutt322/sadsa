@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await codeEditor.initializeEditor();
         
         // Set up language switching
-        const languageSelect = document.getElementById('language-select');
+        const languageSelect = document.getElementById('languageSelector');
         if (languageSelect) {
             languageSelect.addEventListener('change', (e) => {
                 const newLanguage = e.target.value;
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // Set up run button
-        const runButton = document.getElementById('run-button');
+        const runButton = document.getElementById('runCodeBtn');
         if (runButton) {
             runButton.addEventListener('click', () => {
                 runCode(codeEditor);
@@ -136,10 +136,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // Set up save button
-        const saveButton = document.getElementById('save-button');
+        const saveButton = document.getElementById('saveBtn');
         if (saveButton) {
             saveButton.addEventListener('click', () => {
                 saveCode(codeEditor);
+            });
+        }
+
+        // Set up clear button
+        const clearButton = document.getElementById('clearBtn');
+        if (clearButton) {
+            clearButton.addEventListener('click', () => {
+                codeEditor.editor.setValue('');
+                document.getElementById('output').innerHTML = '<div class="text-muted">Run your code to see output here</div>';
             });
         }
 
@@ -176,7 +185,7 @@ async function runCode(codeEditor) {
     const code = codeEditor.editor.getValue();
     const language = codeEditor.currentLanguage;
     const outputDiv = document.getElementById('output');
-    const runButton = document.getElementById('run-button');
+    const runButton = document.getElementById('runCodeBtn');
 
     // Show loading state
     runButton.disabled = true;
@@ -233,7 +242,7 @@ async function saveCode(codeEditor) {
 
     const code = codeEditor.editor.getValue();
     const language = codeEditor.currentLanguage;
-    const saveButton = document.getElementById('save-button');
+    const saveButton = document.getElementById('saveBtn');
 
     // Show loading state
     saveButton.disabled = true;

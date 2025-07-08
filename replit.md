@@ -117,6 +117,10 @@ Changelog:
 - July 08, 2025. Initial setup
 - July 08, 2025. Added Google OAuth authentication with complete sign-in flow
 - July 08, 2025. Migrated from SQLite to PostgreSQL database with full schema
+- July 08, 2025. Fixed language switching and code execution functionality
+- July 08, 2025. Implemented all language handlers (Python, JavaScript, Java, C, Go, Rust)
+- July 08, 2025. Added proper error handling and output formatting
+- July 08, 2025. Installed required compilers and runtimes for all languages
 ```
 
 ## User Preferences
