@@ -43,10 +43,8 @@ app.config['SECURITY_PASSWORD_SALT'] = os.environ.get("SECURITY_PASSWORD_SALT") 
 app.config['WTF_CSRF_CHECK_DEFAULT'] = False  # Disable default CSRF checking
 app.config['WTF_CSRF_TIME_LIMIT'] = None  # No time limit for CSRF tokens
 
-# DB config - use /tmp directory which is always writable
-import os
-db_path = "/tmp/database.db"
-app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
+# DB config - use PostgreSQL database
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     'pool_pre_ping': True,

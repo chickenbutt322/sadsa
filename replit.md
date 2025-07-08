@@ -95,12 +95,12 @@ CodeCraft Studio is a web-based multi-language IDE built with Flask. It provides
 ## Deployment Strategy
 
 ### Development Environment
-- **Database**: SQLite stored in `/tmp/database.db`
+- **Database**: PostgreSQL with full authentication and project management
 - **Static Files**: Served directly by Flask
 - **Email**: Configured for Outlook SMTP
 
 ### Production Considerations
-- **Database**: Upgradeable to PostgreSQL via Drizzle ORM
+- **Database**: PostgreSQL with authentication and Google OAuth integration
 - **Static Files**: Can be served by CDN
 - **Email**: Environment-based configuration
 - **Security**: SSL/TLS termination and secure headers
@@ -115,6 +115,8 @@ CodeCraft Studio is a web-based multi-language IDE built with Flask. It provides
 ```
 Changelog:
 - July 08, 2025. Initial setup
+- July 08, 2025. Added Google OAuth authentication with complete sign-in flow
+- July 08, 2025. Migrated from SQLite to PostgreSQL database with full schema
 ```
 
 ## User Preferences
