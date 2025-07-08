@@ -13,6 +13,7 @@ import pyotp
 import qrcode
 import io
 import base64
+from google_auth import google_auth
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -94,6 +95,9 @@ if not os.path.exists(WORKSPACE_DIR):
 
 # Init language handler factory
 language_factory = LanguageHandlerFactory()
+
+# Register Google Auth blueprint
+app.register_blueprint(google_auth)
 
 # Initialize database
 def init_database():

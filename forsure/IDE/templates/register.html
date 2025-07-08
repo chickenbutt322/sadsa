@@ -81,6 +81,21 @@
                             </button>
                         </form>
                         
+                        <!-- Google Sign-Up Button -->
+                        <div class="text-center mb-3">
+                            <div class="position-relative">
+                                <hr class="my-3">
+                                <span class="position-absolute top-50 start-50 translate-middle bg-dark px-3 text-muted">OR</span>
+                            </div>
+                        </div>
+
+                        <div class="d-grid mb-3">
+                            <a href="{{ url_for('google_auth.google_login') }}" class="btn btn-outline-light">
+                                <i class="fab fa-google me-2"></i>
+                                Continue with Google
+                            </a>
+                        </div>
+                        
                         <div class="text-center">
                             <p class="mb-0">
                                 Already have an account? 
