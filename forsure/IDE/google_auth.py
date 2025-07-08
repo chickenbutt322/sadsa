@@ -115,7 +115,7 @@ def google_callback():
             user = User(
                 username=users_name,
                 email=users_email,
-                is_verified=True,  # Google accounts are already verified
+                email_verified=True,  # Google accounts are already verified
                 password_hash=""  # No password needed for OAuth users
             )
             db.session.add(user)
@@ -123,8 +123,8 @@ def google_callback():
             flash(f"Welcome to CodeCraft Studio, {users_name}! Your account has been created.", "success")
         else:
             # Update existing user if needed
-            if not user.is_verified:
-                user.is_verified = True
+            if not user.email_verified:
+                user.email_verified = True
                 db.session.commit()
             flash(f"Welcome back, {user.username}!", "success")
         
