@@ -474,7 +474,93 @@ def reset_password(token):
 def about():
     return render_template('about.html')
 
-# add more routes here like /api/languages, /api/execute, etc.
+# Code execution and project management routes
+@app.route('/execute', methods=['POST'])
+def execute_code():
+    """Execute code in the specified language"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return {'error': 'No data provided'}, 400
+        
+        code = data.get('code', '').strip()
+        language = data.get('language', 'python')
+        
+        if not code:
+            return {'error': 'No code provided'}, 400
+        
+        # Get language handler
+        handler = language_factory.get_handler(language)
+        if not handler:
+            return {'error': f'Language "{language}" not supported'}, 400
+        
+        # Execute code
+        result = handler.execute(code)
+        
+        return result
+        
+    except Exception as e:
+        logging.error(f"Error executing code: {e}")
+        return {'error': f'Execution failed: {str(e)}'}, 500
+
+@app.route('/save', methods=['POST'])
+def save_project():
+    """Save code as a project"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return {'error': 'No data provided'}, 400
+        
+        code = data.get('code', '').strip()
+        language = data.get('language', 'python')
+        name = data.get('name', 'Untitled Project')
+        
+        if not code:
+            return {'error': 'No code provided'}, 400
+        
+        # If user is authenticated, save to database
+        if current_user.is_authenticated:
+            from models import Project
+            
+            # Create new project
+            project = Project(
+                name=name,
+                description=f"Project created in {language}",
+                language=language,
+                code=code,
+                user_id=current_user.id
+            )
+            
+            db.session.add(project)
+            db.session.commit()
+            
+            return {'message': 'Project saved successfully', 'project_id': project.id}
+        else:
+            # For guest users, just return success (could implement session storage)
+            return {'message': 'Code saved locally (login to save permanently)'}
+        
+    except Exception as e:
+        logging.error(f"Error saving project: {e}")
+        return {'error': f'Save failed: {str(e)}'}, 500
+
+@app.route('/languages', methods=['GET'])
+def get_languages():
+    """Get list of supported languages"""
+    try:
+        languages = []
+        for lang in language_factory.get_supported_languages():
+            handler = language_factory.get_handler(lang)
+            if handler:
+                lang_info = handler.get_language_info()
+                languages.append(lang_info)
+        
+        return {'languages': languages}
+        
+    except Exception as e:
+        logging.error(f"Error getting languages: {e}")
+        return {'error': f'Failed to get languages: {str(e)}'}, 500
 
 @app.route('/resend-verification')
 @login_required
@@ -502,64 +588,7 @@ def admin_cleanup():
     flash('Cleanup completed successfully', 'success')
     return redirect(url_for('index'))
 
-# API Routes for code execution
-@app.route('/api/languages')
-def get_languages():
-    """Get available programming languages"""
-    try:
-        languages = language_factory.get_available_languages()
-        return {'languages': languages}
-    except Exception as e:
-        logging.error(f"Error getting languages: {e}")
-        return {'error': str(e)}, 500
-
-@app.route('/api/execute', methods=['POST'])
-def execute_code():
-    """Execute code in specified language"""
-    try:
-        data = request.get_json()
-        
-        if not data:
-            return {'error': 'No data provided'}, 400
-        
-        code = data.get('code', '').strip()
-        language = data.get('language', '').lower()
-        
-        if not code:
-            return {'error': 'No code provided'}, 400
-        
-        if not language:
-            return {'error': 'No language specified'}, 400
-        
-        # Get language handler
-        handler = language_factory.get_handler(language)
-        if not handler:
-            available = [lang['key'] for lang in language_factory.get_available_languages()]
-            return {'error': f'Unsupported language: {language}. Available: {", ".join(available)}'}, 400
-        
-        # Validate code syntax first
-        is_valid, validation_error = handler.validate(code)
-        if not is_valid and validation_error:
-            return {
-                'output': '',
-                'error': validation_error,
-                'execution_time': 0,
-                'language_info': handler.get_language_info()
-            }
-        
-        # Execute code
-        result = handler.execute(code)
-        result['language_info'] = handler.get_language_info()
-        
-        return result
-        
-    except Exception as e:
-        logging.error(f"Error executing code: {e}")
-        return {
-            'output': '',
-            'error': f'Server error: {str(e)}',
-            'execution_time': 0
-        }, 500
+# Removed duplicate routes - using the ones defined above
 
 @app.route('/api/validate', methods=['POST'])
 def validate_code():
