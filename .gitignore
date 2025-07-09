@@ -1,0 +1,9 @@
+# ignore venv and cache
+.venv/
+__pycache__/
+*.pyc
+
+# ignore IDE/editor stuff
+.vscode/
+*.log
+.env
