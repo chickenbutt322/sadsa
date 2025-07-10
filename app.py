@@ -649,12 +649,7 @@ if __name__ == '__main__':
                 continue
         return start_port
 
-<<<<<<< HEAD
+
 port = int(os.environ.get("PORT", 5000))
 print(f"Starting server on port {port}")
 app.run(host='0.0.0.0', port=port, debug=True)
-=======
-    port = find_available_port(5000)
-    print(f"Starting server on port {port}")
-    app.run(host='0.0.0.0', port=port, debug=True)
->>>>>>> 992c3ea1c9eac8a8ac498afd4a5ad1aaf30de677
