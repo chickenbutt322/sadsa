@@ -55,9 +55,8 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 
 
 
-
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
+GOOGLE_CLIENT_ID = "29533527207-eh0v13lufsota61u3227rj8anuecleru.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET = "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"
 
 
 # Init db
