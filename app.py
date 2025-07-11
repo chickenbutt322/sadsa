@@ -52,6 +52,14 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 }
 
 
+
+
+
+
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
+
+
 # Init db
 from extensions import db
 db.init_app(app)
