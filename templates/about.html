@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code Interpreter & IDE</title>
+    <title>About Us - CodeCraft Studio</title>
     <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -27,9 +28,9 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-code me-2"></i>
-                Code Interpreter
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="CodeCraft Studio" height="40" class="me-2">
+                CodeCraft Studio
             </a>
             <div class="navbar-nav ms-auto">
                 <a class="btn btn-outline-light me-2" href="{{ url_for('login') }}">
@@ -48,7 +49,7 @@
     <section class="hero-section">
         <div class="container text-center">
             <h1 class="display-4 fw-bold mb-4">
-                Multi-Language Code Interpreter & IDE
+                About CodeCraft Studio
             </h1>
             <p class="lead mb-5">
                 Write, execute, and test code in multiple programming languages. 
@@ -180,9 +181,7 @@
     <!-- Footer -->
     <footer class="bg-dark py-4">
         <div class="container text-center">
-            <p class="mb-0 text-muted">
-                &copy; 2025 Code Interpreter. Built with Flask and powered by Replit.
-            </p>
+            <p class="mb-0 text-muted">Built with passion for developers, by developers.</p>
         </div>
     </footer>
 
